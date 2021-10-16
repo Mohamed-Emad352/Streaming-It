@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+@import "../node_modules/bootstrap/scss/bootstrap.scss";
+@import "scss/variables";
+@import "scss/mixins";
+@import "scss/typography";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: $font-primary;
+}
+
+html,
+body {
+  min-height: 100vh;
+  height: 100vh;
+}

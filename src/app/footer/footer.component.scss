@@ -1,0 +1,16 @@
+@import "../../scss/mixins";
+
+div {
+  background-color: #333;
+  padding: 10px;
+  height: 40px;
+  p {
+    text-align: center;
+    color: white;
+    margin: 0;
+  }
+
+  @include media(340px) {
+    font-size: 0.8rem;
+  }
+}

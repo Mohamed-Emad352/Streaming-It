@@ -1,0 +1,144 @@
+@import "../../scss/variables";
+@import "../../scss/mixins";
+
+nav {
+  padding: 1.3rem;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  background-color: rgba($color: #ffffff, $alpha: 0.3);
+  .container {
+    display: flex;
+    justify-content: space-between;
+    h2 {
+      letter-spacing: 7px;
+      color: #fc7474;
+      margin: 0 !important;
+      align-self: center;
+    }
+    a {
+      cursor: pointer;
+      text-decoration: none;
+      color: white;
+      padding: 10px 30px 10px 30px;
+      border-radius: 10px;
+      align-self: center;
+      background: linear-gradient(325deg, $darkcyan-2, $darkcyan-1);
+      transition: opacity 0.3s;
+
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+  }
+
+  @include tablet {
+    h2 {
+      letter-spacing: 3px;
+      font-size: 1.5rem;
+    }
+  }
+
+  @include mobile {
+    padding: 1rem;
+    h2 {
+      font-size: 1.3rem;
+      letter-spacing: 1.7px !important;
+      align-self: center !important;
+    }
+    a {
+      font-size: 0.8rem;
+      padding: 5px 15px 5px 15px !important;
+      border-radius: 5px !important;
+    }
+  }
+}
+
+header {
+  height: calc(100%);
+  background: url("../../assets/bg-animated.svg");
+  background-size: cover;
+
+  .container,
+  .row {
+    height: 100%;
+  }
+
+  @include tablet {
+    background-position: -150px;
+    background-repeat: no-repeat;
+  }
+
+  @include mobile {
+    background-position: -250px;
+  }
+
+  .row {
+    h1 {
+      margin-top: 200px;
+      color: white;
+
+      span {
+        color: $lightcyan-1;
+        font-weight: bold;
+      }
+    }
+    p {
+      width: 400px;
+      color: #d8d8d8;
+      margin-top: 30px;
+      font-size: 1.4rem;
+
+      span {
+        font-weight: bold;
+      }
+
+      @include mobile {
+        width: fit-content;
+      }
+    }
+  }
+
+  .buttons {
+    margin-top: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 150px;
+
+    a {
+      text-align: center;
+      text-decoration: none;
+      font-size: 1.5rem;
+      background-color: #525252;
+      color: white;
+      border: 2px solid #3a3a3a;
+      border-radius: 10px;
+      padding: 5px;
+      transition: opacity 0.3s, transform 0.3s, box-shadow 0.3s;
+
+      &:hover {
+        opacity: 0.65;
+        transform: translateY(-10px);
+        box-shadow: 0px 10px 10px 0px black;
+      }
+    }
+
+    @include tablet {
+      margin-top: 0 !important;
+    }
+
+    @include media(992px) {
+      margin-top: 150%;
+    }
+
+    @include media(567px) {
+      height: 100px;
+      a {
+        font-size: 1.2rem;
+        padding: 2px !important;
+      }
+    }
+  }
+}
