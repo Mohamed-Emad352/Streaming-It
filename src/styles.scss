@@ -12,6 +12,9 @@
 
 html,
 body {
-  min-height: 100vh;
   height: 100vh;
+
+  @include tablet {
+    height: 800px !important;
+  }
 }

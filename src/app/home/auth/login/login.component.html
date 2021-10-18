@@ -1,0 +1,41 @@
+<form #form="ngForm" (ngSubmit)="onLogin(form)">
+  <h2 class="mb-3">Log in</h2>
+  <div *ngIf="error" class="error mb-4">
+    <p>Invalid E-mail or password!</p>
+    <div (click)="onCloseError()" class="timesIcon">
+      <fa-icon [icon]="timesIcon"></fa-icon>
+    </div>
+  </div>
+  <input
+    class="mb-1"
+    ngModel
+    name="email"
+    email
+    type="text"
+    required
+    placeholder="E-mail"
+    #email="ngModel"
+  />
+  <p *ngIf="!email.valid && email.touched" style="color: red" class="mb-4">
+    <fa-icon [icon]="dangerIcon"></fa-icon> Please enter a valid E-mail!
+  </p>
+  <div class="mb-4"></div>
+  <input
+    class="mb-1"
+    ngModel
+    name="password"
+    type="password"
+    placeholder="Password"
+    required
+    minlength="6"
+    #pass="ngModel"
+  />
+  <p *ngIf="!pass.valid && pass.touched" style="color: red">
+    <fa-icon [icon]="dangerIcon"></fa-icon> Password minimum length is 6
+  </p>
+  <div class="mb-4"></div>
+  <button type="submit" [disabled]="!form.valid">Log in</button>
+  <p class="mt-3">
+    Don't have an account? <a [routerLink]="['/auth', 'signup']">Create one</a>
+  </p>
+</form>

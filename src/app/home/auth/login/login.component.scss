@@ -1,0 +1,79 @@
+@import "../../.././../scss/variables";
+@import "../../.././../scss/mixins";
+
+form {
+  text-align: center;
+
+  h2 {
+    text-align: center;
+  }
+
+  input[type="text"],
+  input[type="password"] {
+    padding: 3px;
+    outline: none;
+    border-radius: 4px;
+    width: 300px;
+    border: 1px solid #b6b6b6;
+    background-color: whitesmoke;
+    transition: 0.3s ease-in-out box-shadow, 0.3s ease-in-out border;
+
+    &.ng-invalid.ng-touched {
+      border: 1px solid red;
+    }
+
+    @include mobile {
+      width: 200px;
+    }
+
+    &:focus {
+      box-shadow: 0px 5px 10px #b9b9b9;
+      border: 1px solid $blue-3;
+    }
+  }
+
+  button {
+    padding: 8px 35px 8px 35px;
+    border: none;
+    background-color: $blue-3;
+    color: white;
+    border-radius: 8px;
+    transition: 0.2s ease-in-out background-color, 0.2s ease-in-out transform;
+
+    &:hover {
+      background-color: $darkcyan-1;
+      transform: translateY(-5px);
+    }
+
+    &:disabled {
+      background-color: #b4b4b4;
+      cursor: not-allowed;
+    }
+
+    &:disabled:hover {
+      transform: translateY(0px) !important;
+    }
+  }
+
+  p a {
+    color: $blue-3;
+  }
+
+  .error {
+    p {
+      margin: 0 !important;
+    }
+    position: relative;
+    padding: 0.6rem;
+    background-color: #fa9292;
+    border: 1px solid red;
+    border-radius: 5px;
+
+    .timesIcon {
+      position: absolute;
+      top: 0px;
+      right: 10px;
+      cursor: pointer;
+    }
+  }
+}

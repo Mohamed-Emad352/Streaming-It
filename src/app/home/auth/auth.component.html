@@ -1,0 +1,16 @@
+<div class="wrapper">
+  <div [@fadeinout]="animationState">
+    <div class="icon-wrapper" (click)="onAuthNavigation()">
+      <fa-icon [icon]="closeIcon"></fa-icon>
+    </div>
+    <router-outlet></router-outlet>
+  </div>
+</div>
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.6)"
+  size="medium"
+  color="#4ba0f1"
+  type="timer"
+  [fullScreen]="true"
+  ><p style="color: white">Loading...</p></ngx-spinner
+>

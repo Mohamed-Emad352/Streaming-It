@@ -1,7 +1,13 @@
 <nav>
   <div class="container">
     <h2>STREAMINGIT</h2>
-    <a href="#">Log in</a>
+    <div class="wrapper" *ngIf="!isLoading">
+      <p *ngIf="isAuth">
+        Hello, <span>{{ userInfo.userInfo.name }}</span>
+      </p>
+      <a *ngIf="!isAuth" [routerLink]="['/auth', 'login']">Log in</a>
+      <a *ngIf="isAuth" class="logout" (click)="onLogout()">Log out</a>
+    </div>
   </div>
 </nav>
 <header>
@@ -26,3 +32,5 @@
     </div>
   </div>
 </header>
+<div *ngIf="auth" class="dark-overlay" (click)="onAuthNavigation()"></div>
+<router-outlet></router-outlet>
