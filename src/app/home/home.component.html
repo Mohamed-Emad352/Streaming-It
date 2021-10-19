@@ -25,7 +25,7 @@
       </div>
       <div class="col-md-5">
         <div class="buttons">
-          <a href="#">Generate room</a>
+          <a [routerLink]="['/room', 'login']">Generate room</a>
           <a href="#">Join room</a>
         </div>
       </div>
@@ -34,3 +34,6 @@
 </header>
 <div *ngIf="auth" class="dark-overlay" (click)="onAuthNavigation()"></div>
 <router-outlet></router-outlet>
+<footer>
+  <app-footer></app-footer>
+</footer>

@@ -1,0 +1,48 @@
+<div class="wrapper">
+  <div class="user" *ngFor="let user of users"></div>
+  <div class="speakers">
+    <div class="speaker" *ngFor="let speaker of speakers">
+      <fa-icon [icon]="speakerIcon"></fa-icon>
+      {{ speaker }}
+    </div>
+  </div>
+  <div class="controls">
+    <div
+      (click)="toggleVideo()"
+      [title]="video ? 'Disable video' : 'Enable video'"
+      [ngClass]="{ enabled: video }"
+      class="video control"
+    >
+      <fa-icon *ngIf="video" [icon]="videoIcon"></fa-icon>
+      <fa-icon *ngIf="!video" [icon]="videoDisabledIcon"></fa-icon>
+    </div>
+    <div
+      (click)="toggleAudio()"
+      [ngClass]="{ enabled: audio }"
+      [title]="audio ? 'Mute' : 'Unmute'"
+      class="audio control"
+    >
+      <fa-icon *ngIf="audio" [icon]="audioIcon"></fa-icon>
+      <fa-icon *ngIf="!audio" [icon]="audioMutedIcon"></fa-icon>
+    </div>
+    <div
+      (click)="toggleScreen()"
+      [ngClass]="{ enabled: screen }"
+      [title]="screen ? 'Stop sharing' : 'Share screen'"
+      class="screen control"
+    >
+      <fa-icon [icon]="screenIcon"></fa-icon>
+    </div>
+    <div class="leave control" [routerLink]="['/']" [title]="'Leave meeting'">
+      <fa-icon [icon]="leaveIcon"></fa-icon>
+    </div>
+  </div>
+  <div class="controls-mobile">
+    <div (click)="showMenu('users')" class="usersList control">
+      <fa-icon [icon]="usersListIcon"></fa-icon>
+    </div>
+    <div (click)="showMenu('chat')" class="chat control">
+      <fa-icon [icon]="chatIcon"></fa-icon>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,87 @@
+@import "../../../scss/mixins";
+@import "../../../scss/variables";
+
+.wrapper {
+  padding: 10px;
+  overflow-y: auto;
+  min-height: calc(100vh - 34px);
+  max-height: calc(100vh - 34px);
+
+  @include scrollbar;
+
+  p {
+    margin: 0 !important;
+  }
+
+  .message {
+    background-color: white;
+    padding: 10px;
+    width: fit-content;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    margin-bottom: 20px;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    animation: message 0.3s ease-in-out;
+
+    .messageOwner {
+      font-weight: bold;
+    }
+
+    &.self {
+      margin-left: auto;
+      border-top-right-radius: 0px !important;
+      border-top-left-radius: 20px !important;
+      border-bottom-left-radius: 20px !important;
+      border-bottom-right-radius: 20px !important;
+
+      .messageOwner {
+        color: #14cc14;
+      }
+    }
+  }
+}
+
+form {
+  height: 34px;
+
+  input {
+    padding: 3px;
+    outline: none;
+    border: 1px solid #b6b6b6;
+    background-color: whitesmoke;
+    height: 100%;
+    width: calc(100% - 60px);
+    transition: 0.3s ease-in-out box-shadow, 0.3s ease-in-out border;
+
+    &:focus {
+      border: 1px solid $blue-3;
+    }
+  }
+
+  button {
+    border: none;
+    background-color: $blue-3;
+    color: white;
+    height: 100%;
+    width: 60px;
+    transition: 0.2s ease-in-out background-color;
+
+    &:hover {
+      background-color: $darkcyan-1;
+    }
+  }
+}
+
+@keyframes message {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}

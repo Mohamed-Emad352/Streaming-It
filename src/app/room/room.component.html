@@ -1,0 +1,26 @@
+<div class="page">
+  <div
+    *ngIf="chatMenu || usersListMenu"
+    (click)="closeMenu()"
+    class="dark-overlay"
+  ></div>
+  <div [ngClass]="{ show: usersListMenu }" class="users-list">
+    <app-users-list></app-users-list>
+  </div>
+  <div class="room">
+    <app-video-chat (showMenuEvent)="onShowMenu($event)"></app-video-chat>
+  </div>
+  <div [ngClass]="{ show: chatMenu }" class="chat">
+    <app-chat></app-chat>
+  </div>
+  <div (click)="closeMenu()" *ngIf="usersListMenu" class="closeIcon">
+    <div>
+      <fa-icon [icon]="closeIcon"></fa-icon>
+    </div>
+  </div>
+  <div (click)="closeMenu()" *ngIf="chatMenu" class="closeIcon closeIconLeft">
+    <div>
+      <fa-icon [icon]="closeIcon"></fa-icon>
+    </div>
+  </div>
+</div>

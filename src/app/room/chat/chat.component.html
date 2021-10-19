@@ -1,0 +1,16 @@
+<div class="wrapper">
+  <div
+    [ngClass]="{ self: checkMessageOwner(message_) }"
+    class="message"
+    #message_
+    *ngFor="let message of chatMessages"
+    [attr.data-email]="message.email"
+  >
+    <p class="messageOwner">{{ message.name }}</p>
+    <p class="messageText">{{ message.message }}</p>
+  </div>
+</div>
+<form>
+  <input placeholder="Type a message" type="text" />
+  <button type="submit">Send</button>
+</form>

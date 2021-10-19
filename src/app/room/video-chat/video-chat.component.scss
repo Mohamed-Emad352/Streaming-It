@@ -1,0 +1,141 @@
+@import "../../../scss/mixins";
+
+.wrapper {
+  height: 100vh;
+  overflow: auto;
+  padding: 10px 10px 90px 10px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 10px;
+  position: relative;
+  z-index: 5;
+  grid-template-rows: repeat(3, 1fr);
+  @include scrollbar;
+
+  .user {
+    background-color: lightskyblue;
+    border-radius: 10px;
+    grid-column: span 6;
+    animation: user 0.6s ease-in-out;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(6, 1fr);
+
+    .user {
+      height: 220px;
+    }
+  }
+}
+
+.speakers {
+  position: fixed;
+  bottom: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+  left: 10px;
+  color: white;
+  font-size: 1.4rem;
+  @include scrollbar;
+
+  @include mobile {
+    bottom: 80px;
+  }
+
+  .speaker {
+    animation: speaker 0.3s ease-in-out;
+  }
+}
+
+@mixin control {
+  padding: 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.3rem;
+  text-align: center;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.controls {
+  position: fixed;
+  bottom: 20px;
+  left: 1;
+  right: 1;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  width: 250px;
+
+  .control {
+    @include control;
+    background-color: black;
+    color: white;
+    width: 55px;
+
+    &.leave {
+      background-color: red;
+    }
+
+    &.leave:hover {
+      background-color: lighten($color: red, $amount: 15);
+    }
+
+    &:hover {
+      background-color: lighten($color: black, $amount: 15);
+    }
+
+    &.enabled {
+      background-color: white;
+      color: black;
+    }
+
+    &.enabled:hover {
+      background-color: darken($color: white, $amount: 15);
+    }
+  }
+}
+
+.controls-mobile {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  top: 20px;
+  justify-content: space-between;
+
+  @include tablet {
+    display: flex !important;
+  }
+
+  .control {
+    @include control;
+    background-color: white;
+    width: 60px;
+
+    &:hover {
+      background-color: darken($color: white, $amount: 15);
+    }
+  }
+}
+
+@keyframes speaker {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+@keyframes user {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}

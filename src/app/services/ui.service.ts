@@ -8,5 +8,6 @@ export class UiService {
   public authSubject = new BehaviorSubject<boolean>(false);
   public authAnimation = new BehaviorSubject<string>('');
   public loadingSpinner = new BehaviorSubject<boolean>(false);
+  public mobileView = false;
   constructor() {}
 }

@@ -11,6 +11,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { RoomComponent } from './room/room.component';
+import { ChatComponent } from './room/chat/chat.component';
+import { UsersListComponent } from './room/users-list/users-list.component';
+import { VideoChatComponent } from './room/video-chat/video-chat.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +24,10 @@ import { NgxSpinnerModule } from 'ngx-spinner';
     AuthComponent,
     LoginComponent,
     SignupComponent,
+    RoomComponent,
+    ChatComponent,
+    UsersListComponent,
+    VideoChatComponent,
   ],
   imports: [
     BrowserModule,
