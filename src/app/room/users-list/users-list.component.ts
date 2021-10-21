@@ -1,6 +1,7 @@
 import {
   Component,
   ElementRef,
+  Input,
   OnInit,
   Renderer2,
   ViewChild,
@@ -13,23 +14,7 @@ import { faVolumeUp } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./users-list.component.scss'],
 })
 export class UsersListComponent implements OnInit {
-  users = [
-    'mohazgdgjbrejgbsbresgiuseg',
-    'ahmed',
-    'mostafa',
-    'mostafa',
-    'mostafa',
-    'mostafa',
-    'mostafa',
-    'mostafa',
-    'mostafa',
-    'mostafa',
-    'mostafa',
-    'mostafa',
-    'mostafa',
-    'mostafa',
-    'mostafa',
-  ];
+  @Input() users: string[] = [];
   soundIcon = faVolumeUp;
   currentUser: any;
   currentMenu: any;

@@ -1,5 +1,12 @@
 <div class="wrapper">
-  <div class="user" *ngFor="let user of users"></div>
+  <div class="copylink" (click)="onCopyRoomLink(copydiv)">
+    <span #copydiv>Copy room code </span> <fa-icon [icon]="copyIcon"></fa-icon>
+  </div>
+  <div
+    class="user"
+    [id]="'stream-' + users?.length"
+    *ngFor="let user of users"
+  ></div>
   <div class="speakers">
     <div class="speaker" *ngFor="let speaker of speakers">
       <fa-icon [icon]="speakerIcon"></fa-icon>

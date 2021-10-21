@@ -25,15 +25,35 @@
       </div>
       <div class="col-md-5">
         <div class="buttons">
-          <a [routerLink]="['/room', 'login']">Generate room</a>
-          <a href="#">Join room</a>
+          <a (click)="onGenerateRoom()" style="cursor: pointer"
+            >Generate room</a
+          >
+          <a style="cursor: pointer">Join room</a>
         </div>
       </div>
     </div>
   </div>
 </header>
-<div *ngIf="auth" class="dark-overlay" (click)="onAuthNavigation()"></div>
+<div
+  *ngIf="auth || message"
+  class="dark-overlay"
+  (click)="onAuthNavigation()"
+></div>
+<div class="message" *ngIf="message">
+  <div (click)="onAuthNavigation()" class="close-icon">
+    <fa-icon [icon]="closeIcon"></fa-icon>
+  </div>
+  <p>{{ message }}</p>
+</div>
 <router-outlet></router-outlet>
 <footer>
   <app-footer></app-footer>
 </footer>
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.6)"
+  size="medium"
+  color="#4ba0f1"
+  type="timer"
+  [fullScreen]="true"
+  ><p style="color: white">Loading...</p></ngx-spinner
+>

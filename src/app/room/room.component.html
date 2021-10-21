@@ -1,17 +1,21 @@
-<div class="page">
+<div *ngIf="!loading" class="page">
   <div
     *ngIf="chatMenu || usersListMenu"
     (click)="closeMenu()"
     class="dark-overlay"
   ></div>
   <div [ngClass]="{ show: usersListMenu }" class="users-list">
-    <app-users-list></app-users-list>
+    <app-users-list [users]="usersList"></app-users-list>
   </div>
   <div class="room">
-    <app-video-chat (showMenuEvent)="onShowMenu($event)"></app-video-chat>
+    <app-video-chat
+      [users]="users"
+      [speakers]="speakers"
+      (showMenuEvent)="onShowMenu($event)"
+    ></app-video-chat>
   </div>
   <div [ngClass]="{ show: chatMenu }" class="chat">
-    <app-chat></app-chat>
+    <app-chat [chatMessages]="chatMessages"></app-chat>
   </div>
   <div (click)="closeMenu()" *ngIf="usersListMenu" class="closeIcon">
     <div>
@@ -24,3 +28,11 @@
     </div>
   </div>
 </div>
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 1)"
+  size="medium"
+  color="#4ba0f1"
+  type="timer"
+  [fullScreen]="true"
+  ><p style="color: white">Loading...</p></ngx-spinner
+>
