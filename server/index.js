@@ -26,10 +26,15 @@ const generateAccessToken = (req, res) => {
   else {
     return res.status(500).json({ error: 'Role is inavlid!' });
   }
+  const generateChannel = req.query.generateChannel;
   const expireTime = 10800;
   const currentTime = Math.floor(Date.now() / 1000);
   const privilageExpireTime = currentTime + expireTime;
-  const channelName = uuid.v4();
+  let channelName;
+  if (!generateChannel || generateChannel === '') channelName = uuid.v4();
+  else {
+    channelName = generateChannel;
+  }
   const token = RtcTokenBuilder.buildTokenWithUid(
     APP_ID,
     APP_CERTIFICATE,

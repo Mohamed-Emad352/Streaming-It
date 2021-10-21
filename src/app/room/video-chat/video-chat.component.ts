@@ -141,6 +141,10 @@ export class VideoChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 5000);
   }
 
+  createIndex() {
+    return this.users?.length! - 1;
+  }
+
   ngOnDestroy() {
     this.subs.forEach((sub) => {
       sub.unsubscribe();

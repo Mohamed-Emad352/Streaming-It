@@ -28,7 +28,7 @@
           <a (click)="onGenerateRoom()" style="cursor: pointer"
             >Generate room</a
           >
-          <a style="cursor: pointer">Join room</a>
+          <a (click)="onOpenJoinForm()" style="cursor: pointer">Join room</a>
         </div>
       </div>
     </div>
@@ -43,7 +43,21 @@
   <div (click)="onAuthNavigation()" class="close-icon">
     <fa-icon [icon]="closeIcon"></fa-icon>
   </div>
-  <p>{{ message }}</p>
+  <p *ngIf="message !== 'join'">{{ message }}</p>
+  <div *ngIf="message === 'join'">
+    <form #joinForm="ngForm" (ngSubmit)="onJoinRoom(joinForm)">
+      <input
+        name="code"
+        required
+        minlength="36"
+        ngModel
+        type="text"
+        placeholder="Enter room code"
+      />
+      <br />
+      <button [disabled]="!joinForm.valid" type="submit">Join</button>
+    </form>
+  </div>
 </div>
 <router-outlet></router-outlet>
 <footer>

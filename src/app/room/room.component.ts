@@ -109,6 +109,16 @@ export class RoomComponent implements OnInit, OnDestroy {
       this.token
     );
 
+    client.on('user-published', async (user, mediaType) => {
+      await client.subscribe(user, mediaType);
+      if (mediaType === 'audio') {
+        const audioTrack = user.audioTrack;
+        audioTrack?.play();
+      }
+      if (mediaType === 'video') {
+      }
+    });
+
     this.usersList.push(this.authService.userInfo.userInfo.name!);
 
     let audioTrack: IMicrophoneAudioTrack;
@@ -125,25 +135,35 @@ export class RoomComponent implements OnInit, OnDestroy {
     else if (audioTrack!) await client.publish([audioTrack]);
 
     if (videoTrack!) {
-      this.users.push(this.authService.userInfo.userInfo.name!);
-      this.roomService.usersCountChanged.next(this.users.length);
       setTimeout(() => {
-        videoTrack!.play(`stream-${this.users.length}`);
+        const userIndex = this.users.indexOf(
+          this.authService.userInfo.userInfo.name!
+        );
+        if (userIndex !== -1) videoTrack!.play(`stream-${userIndex}`);
+        else {
+          this.users.push(this.authService.userInfo.userInfo.name!);
+          this.roomService.usersCountChanged.next(this.users.length);
+          videoTrack!.play(`stream-${this.users.length}`);
+        }
       });
     }
 
     this.subs.push(
       this.roomService.streamOptions.subscribe((options) => {
         // Audio Streaming
-        if (options.changeType === 'audio')
+        if (
+          options.changeType === 'audio' &&
+          this.streamOption.audio &&
+          !audioTrack
+        )
+          AgoraRTC.createMicrophoneAudioTrack().then((track) => {
+            audioTrack = track;
+          });
+        else if (options.changeType === 'audio' && audioTrack)
           audioTrack.setEnabled(options.audio as boolean);
         // Video Streaming
         else if (options.changeType === 'video') {
           if (screenTrack && screenTrack?.isPlaying) {
-            this.users.splice(
-              this.users.indexOf(this.authService.userInfo.userInfo.name!),
-              1
-            );
             screenTrack.close();
             this.roomService.usersCountChanged.next(this.users.length);
             this.roomService.streamOptionsChangedUI.next({
@@ -155,18 +175,38 @@ export class RoomComponent implements OnInit, OnDestroy {
           if (options.video && !videoTrack) {
             AgoraRTC.createCameraVideoTrack().then((track) => {
               videoTrack = track;
-              this.users.push(this.authService.userInfo.userInfo.name!);
-              this.roomService.usersCountChanged.next(this.users.length);
+              const userIndex = this.users.indexOf(
+                this.authService.userInfo.userInfo.name!
+              );
+              if (userIndex === -1) {
+                this.users.push(this.authService.userInfo.userInfo.name!);
+                this.roomService.usersCountChanged.next(this.users.length);
+              }
               setTimeout(() => {
-                videoTrack!.play(`stream-${this.users.length}`);
+                videoTrack!.play(
+                  `stream-${
+                    userIndex === -1 ? this.users.length - 1 : userIndex
+                  }`
+                );
               });
             });
           } else if (options.video && videoTrack) {
-            this.users.push(this.authService.userInfo.userInfo.name!);
-            this.roomService.usersCountChanged.next(this.users.length);
-            videoTrack.setEnabled(true);
-            setTimeout(() => {
-              videoTrack!.play(`stream-${this.users.length}`);
+            AgoraRTC.createCameraVideoTrack().then((track) => {
+              videoTrack = track;
+              const userIndex = this.users.indexOf(
+                this.authService.userInfo.userInfo.name!
+              );
+              if (userIndex === -1) {
+                this.users.push(this.authService.userInfo.userInfo.name!);
+                this.roomService.usersCountChanged.next(this.users.length);
+              }
+              setTimeout(() => {
+                videoTrack!.play(
+                  `stream-${
+                    userIndex === -1 ? this.users.length - 1 : userIndex
+                  }`
+                );
+              });
             });
           } else if (!options.video && videoTrack) {
             this.users.splice(
@@ -174,17 +214,13 @@ export class RoomComponent implements OnInit, OnDestroy {
               1
             );
             this.roomService.usersCountChanged.next(this.users.length);
-            videoTrack.setEnabled(false);
+            videoTrack.close();
           }
         } else if (options.changeType === 'screen') {
           // Screen Sharing
           if (videoTrack && videoTrack?.isPlaying) {
-            this.users.splice(
-              this.users.indexOf(this.authService.userInfo.userInfo.name!),
-              1
-            );
+            videoTrack.close();
             this.roomService.usersCountChanged.next(this.users.length);
-            videoTrack.setEnabled(false);
             this.roomService.streamOptionsChangedUI.next({
               audio: this.streamOption.audio,
               video: false,
@@ -200,15 +236,19 @@ export class RoomComponent implements OnInit, OnDestroy {
               'disable'
             ).then((track) => {
               screenTrack = track;
-              if (
-                this.users.indexOf(this.authService.userInfo.userInfo.name!) ===
-                -1
-              ) {
+              const userIndex = this.users.indexOf(
+                this.authService.userInfo.userInfo.name!
+              );
+              if (userIndex === -1) {
                 this.users.push(this.authService.userInfo.userInfo.name!);
                 this.roomService.usersCountChanged.next(this.users.length);
               }
               setTimeout(() => {
-                screenTrack!.play(`stream-${this.users.length}`);
+                screenTrack!.play(
+                  `stream-${
+                    userIndex === -1 ? this.users.length - 1 : userIndex
+                  }`
+                );
               });
             });
           } else if (!options.screen && screenTrack) {
@@ -227,15 +267,19 @@ export class RoomComponent implements OnInit, OnDestroy {
               'disable'
             ).then((track) => {
               screenTrack = track;
-              if (
-                this.users.indexOf(this.authService.userInfo.userInfo.name!) ===
-                -1
-              ) {
+              const userIndex = this.users.indexOf(
+                this.authService.userInfo.userInfo.name!
+              );
+              if (userIndex === -1) {
                 this.users.push(this.authService.userInfo.userInfo.name!);
                 this.roomService.usersCountChanged.next(this.users.length);
               }
               setTimeout(() => {
-                screenTrack!.play(`stream-${this.users.length}`);
+                screenTrack!.play(
+                  `stream-${
+                    userIndex === -1 ? this.users.length - 1 : userIndex
+                  }`
+                );
               });
             });
           }

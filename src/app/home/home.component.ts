@@ -8,6 +8,7 @@ import {
   OnInit,
   Renderer2,
 } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { getAuth } from '@firebase/auth';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -87,6 +88,26 @@ export class HomeComponent implements OnInit, AfterContentChecked, OnDestroy {
           this.spinner.hide();
         });
       });
+    } else {
+      this.router.navigate(['/auth', 'login']);
+    }
+  }
+
+  onOpenJoinForm() {
+    this.message = 'join';
+  }
+
+  onJoinRoom(frm: NgForm) {
+    if (getAuth().currentUser) {
+      this.spinner.show();
+      this.tokenService
+        .generateToken('subscriber', frm.controls.code.value)
+        .subscribe((data) => {
+          this.spinner.hide();
+          this.router.navigate(['/room', frm.controls.code.value], {
+            state: { token: data.token, publisher: false },
+          });
+        });
     } else {
       this.router.navigate(['/auth', 'login']);
     }
