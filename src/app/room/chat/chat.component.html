@@ -10,7 +10,14 @@
     <p class="messageText">{{ message.message }}</p>
   </div>
 </div>
-<form>
-  <input placeholder="Type a message" type="text" />
-  <button type="submit">Send</button>
+<form #frm="ngForm" (ngSubmit)="onSendMessage(frm)">
+  <input
+    name="message"
+    required
+    ngModel
+    pattern="^(?!\s*$).+"
+    placeholder="Type a message"
+    type="text"
+  />
+  <button type="submit" [disabled]="!frm.valid">Send</button>
 </form>

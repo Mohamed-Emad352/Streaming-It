@@ -1,5 +1,6 @@
 import {
   Component,
+  HostListener,
   OnDestroy,
   OnInit,
   Renderer2,
@@ -10,9 +11,11 @@ import {
   addDoc,
   collection,
   deleteDoc,
+  doc,
   getDocs,
   getFirestore,
   onSnapshot,
+  orderBy,
   query,
   updateDoc,
   where,
@@ -30,24 +33,29 @@ import { environment } from 'src/environments/environment';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { RoomUserInfo } from '../models/roomUserInfo.interface';
+import { canComponentDeactivate } from '../guards/room-leaving.guard';
 
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss'],
 })
-export class RoomComponent implements OnInit, OnDestroy {
+export class RoomComponent
+  implements OnInit, OnDestroy, canComponentDeactivate
+{
   client!: IAgoraRTCClient;
   audioTrack?: IMicrophoneAudioTrack;
   videoTrack?: ICameraVideoTrack | undefined;
   screenTrack?: ILocalVideoTrack;
+  channelExists: boolean;
+  userAlreadyJoined: boolean;
   usersListMenu = false;
   chatMenu = false;
   closeIcon = faTimes;
   token: string;
   db: any;
   loading = false;
-  users: { [s: string]: string | number }[] = [];
+  users: { [s: string]: string | number | boolean }[] = [];
   usersList: RoomUserInfo[] = [];
   chatMessages: { [s: string]: string }[] = [];
   videoCalls: any[] = [];
@@ -61,7 +69,7 @@ export class RoomComponent implements OnInit, OnDestroy {
   message?: string;
   cameraIds: MediaDeviceInfo[] = [];
   currentCamera = 0;
-  mediaList: any[] = [];
+  channelName!: string;
 
   constructor(
     private renderer: Renderer2,
@@ -72,14 +80,15 @@ export class RoomComponent implements OnInit, OnDestroy {
     private authService: AuthService
   ) {
     this.db = getFirestore();
+    this.channelName = this.route.snapshot.params['id'];
     this.token = this.router.getCurrentNavigation()?.extras.state?.token;
     const publisher =
       this.router.getCurrentNavigation()?.extras.state?.publisher;
     if (publisher) {
       this.roomService.publisher.next(true);
     }
-    let channelExists = false;
-    let userAlreadyJoined = false;
+    this.channelExists = false;
+    this.userAlreadyJoined = false;
     this.subs.push(
       this.roomService.streamOptions.subscribe((options) => {
         this.streamOption.audio = options.audio as boolean;
@@ -97,16 +106,16 @@ export class RoomComponent implements OnInit, OnDestroy {
       .then((docs) => {
         docs.forEach((d) => {
           if (d.data()) {
-            channelExists = true;
+            this.channelExists = true;
           }
         });
       })
       .then(() => {
-        if (!channelExists) {
+        if (!this.channelExists) {
           this.router.navigate(['/'], {
             state: { message: "This room doesn't exist!" },
           });
-        } else if (channelExists) {
+        } else if (this.channelExists) {
           getDocs(data).then((docs) => {
             docs.forEach((doc_) => {
               const user_ = query(
@@ -116,11 +125,11 @@ export class RoomComponent implements OnInit, OnDestroy {
               getDocs(user_)
                 .then((docs_) => {
                   docs_.forEach((doc__) => {
-                    userAlreadyJoined = true;
+                    this.userAlreadyJoined = true;
                   });
                 })
                 .then(() => {
-                  if (userAlreadyJoined)
+                  if (this.userAlreadyJoined)
                     this.router.navigate(['/'], {
                       state: { message: 'You are already in this room!' },
                     });
@@ -134,6 +143,62 @@ export class RoomComponent implements OnInit, OnDestroy {
         this.spinner.hide();
         this.loading = false;
       });
+  }
+
+  @HostListener('window:beforeunload')
+  destroyClient() {
+    try {
+      this.subs.forEach((sub) => {
+        sub.unsubscribe();
+      });
+      this.client.unpublish();
+      this.audioTrack?.close();
+      this.screenTrack?.close();
+      this.videoTrack?.close();
+    } catch {}
+    try {
+      const data = query(
+        collection(this.db, 'rooms'),
+        where('channel', '==', this.channelName)
+      );
+      getDocs(data).then((docs) => {
+        docs.forEach((doc_) => {
+          const user = query(
+            collection(this.db, doc_.ref.path, 'users'),
+            where('uuid', '==', this.client.uid)
+          );
+          getDocs(user).then((docs) => {
+            docs.forEach((doc__) => {
+              deleteDoc(doc__.ref);
+            });
+          });
+        });
+      });
+      getDocs(data).then((docs) => {
+        docs.forEach((doc_) => {
+          const user = query(
+            collection(this.db, doc_.ref.path, 'usersList'),
+            where('uuid', '==', this.client.uid)
+          );
+          getDocs(user).then((docs) => {
+            docs.forEach((doc__) => {
+              deleteDoc(doc__.ref);
+            });
+          });
+        });
+      });
+      if (this.usersList.length <= 1) {
+        getDocs(data)
+          .then((docs) => {
+            docs.forEach((doc) => {
+              deleteDoc(doc.ref);
+            });
+          })
+          .then(() => {
+            this.client.leave();
+          });
+      }
+    } catch {}
   }
 
   ngOnInit(): void {}
@@ -164,6 +229,40 @@ export class RoomComponent implements OnInit, OnDestroy {
         });
       });
     });
+
+    const data_ = query(
+      collection(this.db, 'rooms'),
+      where('channel', '==', this.route.snapshot.params['id'])
+    );
+
+    getDocs(data_).then((docs) => {
+      docs.forEach((doc_) => {
+        const user_ = query(
+          collection(this.db, doc_.ref.path, 'chatMessages'),
+          orderBy('time')
+        );
+        onSnapshot(user_, (doc) => {
+          if (doc.docs.length >= this.chatMessages.length) {
+            console.log(doc.docs[doc.docs.length - 1].data());
+            this.chatMessages.push({
+              name: doc.docs[doc.docs.length - 1].data().name,
+              email: doc.docs[doc.docs.length - 1].data().email,
+              message: doc.docs[doc.docs.length - 1].data().message,
+            });
+          }
+        });
+        getDocs(user_).then((docs_) => {
+          docs_.forEach((doc__) => {
+            this.chatMessages.push({
+              name: doc__.data().name,
+              email: doc__.data().email,
+              message: doc__.data().message,
+            });
+          });
+        });
+      });
+    });
+
     this.client.on('user-published', async (user, mediaType) => {
       await this.client.subscribe(user, mediaType);
       if (mediaType === 'audio') {
@@ -182,10 +281,19 @@ export class RoomComponent implements OnInit, OnDestroy {
             );
             getDocs(user_).then((docs) => {
               docs.forEach((doc__) => {
-                this.users.push(doc__.data().name);
+                const i = this.users.map((u) => u.uid).indexOf(user.uid);
+                if (i === -1)
+                  this.users.push({
+                    name: doc__.data().name,
+                    uid: doc__.data().uuid,
+                    enabled: true,
+                  });
+                else this.users[i].enabled = true;
                 this.roomService.usersCountChanged.next(this.users.length);
                 setTimeout(() => {
-                  user.videoTrack?.play(`stream-${this.users.length - 1}`);
+                  user.videoTrack?.play(
+                    `stream-${i === -1 ? this.users.length - 1 : i}`
+                  );
                 });
               });
             });
@@ -199,6 +307,23 @@ export class RoomComponent implements OnInit, OnDestroy {
       this.route.snapshot.params['id'],
       this.token
     );
+
+    this.client.on('user-unpublished', async (user, media) => {
+      if (media === 'video') {
+        const userIndex = this.users
+          .map(function (e) {
+            return e.uid;
+          })
+          .indexOf(user.uid);
+        this.users[userIndex].enabled = false;
+        this.roomService.usersCountChanged.next(this.users.length);
+      }
+    });
+
+    this.client.on('user-left', (x) => {
+      const i = this.usersList.map((user) => user.uid).indexOf(x.uid as number);
+      this.usersList.splice(i, 1);
+    });
 
     getDocs(
       query(
@@ -233,11 +358,8 @@ export class RoomComponent implements OnInit, OnDestroy {
       docs.forEach((doc_) => {
         const user_ = query(collection(this.db, doc_.ref.path, 'users'));
         onSnapshot(user_, (docs_) => {
-          this.users = [];
-          let i = 0;
           docs_.forEach((doc) => {
             const userData = doc.data();
-            this.users.push({ name: userData.name, uid: userData.uid });
           });
         });
       });
@@ -341,22 +463,7 @@ export class RoomComponent implements OnInit, OnDestroy {
               });
             });
         else if (options.changeType === 'audio' && this.audioTrack) {
-          if (options.audio) {
-            AgoraRTC.createMicrophoneAudioTrack()
-              .then((track) => {
-                this.audioTrack = track;
-                this.audioTrack.setEnabled(options.audio as boolean);
-              })
-              .catch((e) => {
-                this.roomService.streamOptionsChangedUI.next({
-                  audio: false,
-                  video: this.streamOption.video,
-                  screen: this.streamOption.screen,
-                });
-              });
-          } else {
-            this.audioTrack.setEnabled(options.audio as boolean);
-          }
+          this.audioTrack.setEnabled(options.audio as boolean);
         }
         // Video Streaming
         else if (options.changeType === 'video') {
@@ -388,83 +495,11 @@ export class RoomComponent implements OnInit, OnDestroy {
             });
           }
           if (options.video && !this.videoTrack) {
-            AgoraRTC.createCameraVideoTrack({
-              optimizationMode: 'detail',
-              encoderConfig: '1080p',
-            })
-              .then((track) => {
-                this.videoTrack = track;
-                AgoraRTC.getCameras().then((cameras) => {
-                  this.cameraIds = cameras;
-                });
-                const userIndex = this.users.indexOf({
-                  name: this.authService.userInfo.userInfo.name!,
-                  uid: this.client.uid as number,
-                });
-                if (userIndex === -1) {
-                  this.users.push({
-                    name: this.authService.userInfo.userInfo.name!,
-                    uid: this.client.uid as number,
-                  });
-                  this.roomService.usersCountChanged.next(this.users.length);
-                }
-                const data = query(
-                  collection(this.db, 'rooms'),
-                  where('channel', '==', this.route.snapshot.params['id'])
-                );
-                getDocs(data).then(() => {
-                  docs.forEach((doc) => {
-                    addDoc(collection(this.db, doc.ref.path, 'users'), {
-                      uuid: this.client.uid,
-                      name: this.authService.userInfo.userInfo.name,
-                    }).then(() => {
-                      this.client.publish([this.videoTrack!]);
-                    });
-                  });
-                  setTimeout(() => {
-                    this.videoTrack!.play(
-                      `stream-${
-                        userIndex === -1 ? this.users.length - 1 : userIndex
-                      }`
-                    );
-                  });
-                });
-              })
-              .catch((e) => {
-                this.roomService.streamOptionsChangedUI.next({
-                  audio: this.streamOption.audio,
-                  video: false,
-                  screen: this.streamOption.screen,
-                });
-              });
-          } else if (options.video && this.videoTrack) {
-            if (this.streamOption.video) {
-              if (this.currentCamera >= this.cameraIds?.length - 1)
-                this.currentCamera = 0;
-              else this.currentCamera++;
-              this.videoTrack.close();
-              this.client.unpublish([this.videoTrack]).then(() => {
-                this.videoTrack = undefined;
-              });
-              AgoraRTC.createCameraVideoTrack({
-                optimizationMode: 'detail',
-                encoderConfig: '1080p',
-                cameraId: this.cameraIds[this.currentCamera].deviceId,
-              }).then((track) => {
-                this.videoTrack = track;
-                this.client.publish([this.videoTrack]);
-                const userIndex = this.users.indexOf({
-                  name: this.authService.userInfo.userInfo.name!,
-                  uid: this.client.uid as number,
-                });
-                setTimeout(() => {
-                  this.videoTrack!.play(
-                    `stream-${
-                      userIndex === -1 ? this.users.length - 1 : userIndex
-                    }`
-                  );
-                });
-              });
+            const activeUsers = this.users?.filter((u) =>
+              u.enabled ? true : false
+            );
+            if (activeUsers && activeUsers.length >= 8) {
+              confirm('Maximum video users reached!');
             } else {
               AgoraRTC.createCameraVideoTrack({
                 optimizationMode: 'detail',
@@ -472,18 +507,22 @@ export class RoomComponent implements OnInit, OnDestroy {
               })
                 .then((track) => {
                   this.videoTrack = track;
-                  this.client.publish([this.videoTrack]);
-                  const userIndex = this.users.indexOf({
-                    name: this.authService.userInfo.userInfo.name!,
-                    uid: this.client.uid as number,
+                  AgoraRTC.getCameras().then((cameras) => {
+                    this.cameraIds = cameras;
                   });
+                  const userIndex = this.users
+                    .map(function (e) {
+                      return e.uid;
+                    })
+                    .indexOf(this.client.uid!);
                   if (userIndex === -1) {
                     this.users.push({
                       name: this.authService.userInfo.userInfo.name!,
                       uid: this.client.uid as number,
+                      enabled: true,
                     });
                     this.roomService.usersCountChanged.next(this.users.length);
-                  }
+                  } else this.users[userIndex].enabled = true;
                   const data = query(
                     collection(this.db, 'rooms'),
                     where('channel', '==', this.route.snapshot.params['id'])
@@ -493,6 +532,8 @@ export class RoomComponent implements OnInit, OnDestroy {
                       addDoc(collection(this.db, doc.ref.path, 'users'), {
                         uuid: this.client.uid,
                         name: this.authService.userInfo.userInfo.name,
+                      }).then(() => {
+                        this.client.publish([this.videoTrack!]);
                       });
                     });
                     setTimeout(() => {
@@ -512,14 +553,64 @@ export class RoomComponent implements OnInit, OnDestroy {
                   });
                 });
             }
-          } else if (!options.video && this.videoTrack) {
-            this.users.splice(
-              this.users.indexOf({
-                name: this.authService.userInfo.userInfo.name!,
-                uid: this.client.uid as number,
-              }),
-              1
+          } else if (options.video && this.videoTrack) {
+            const activeUsers = this.users?.filter((u) =>
+              u.enabled ? true : false
             );
+            if (activeUsers && activeUsers.length >= 8) {
+              confirm('Maximum video users reached!');
+            } else {
+              AgoraRTC.createCameraVideoTrack({
+                optimizationMode: 'detail',
+                encoderConfig: '1080p',
+              })
+                .then((track) => {
+                  this.videoTrack = track;
+                  this.client.publish([this.videoTrack]);
+                  const userIndex = this.users
+                    .map(function (e) {
+                      return e.uid;
+                    })
+                    .indexOf(this.client.uid!);
+                  this.roomService.usersCountChanged.next(this.users.length);
+                  this.users[userIndex].enabled = true;
+                  const data = query(
+                    collection(this.db, 'rooms'),
+                    where('channel', '==', this.route.snapshot.params['id'])
+                  );
+                  getDocs(data).then(() => {
+                    docs.forEach((doc) => {
+                      addDoc(collection(this.db, doc.ref.path, 'users'), {
+                        uuid: this.client.uid,
+                        name: this.authService.userInfo.userInfo.name,
+                        enabled: true,
+                      });
+                    });
+                    setTimeout(() => {
+                      this.videoTrack!.play(
+                        `stream-${
+                          userIndex === -1 ? this.users.length - 1 : userIndex
+                        }`
+                      );
+                    });
+                  });
+                })
+                .catch((e) => {
+                  this.roomService.streamOptionsChangedUI.next({
+                    audio: this.streamOption.audio,
+                    video: false,
+                    screen: this.streamOption.screen,
+                  });
+                });
+            }
+            //  }
+          } else if (!options.video && this.videoTrack) {
+            const userIndex = this.users
+              .map(function (e) {
+                return e.uid;
+              })
+              .indexOf(this.client.uid!);
+            this.users[userIndex].enabled = false;
             this.roomService.usersCountChanged.next(this.users.length);
             this.videoTrack.close();
             this.client.unpublish([this.videoTrack]);
@@ -581,17 +672,19 @@ export class RoomComponent implements OnInit, OnDestroy {
               .then((track) => {
                 this.screenTrack = track;
                 this.client.publish([this.screenTrack]);
-                const userIndex = this.users.indexOf({
-                  name: this.authService.userInfo.userInfo.name!,
-                  uid: this.client.uid as number,
-                });
+                const userIndex = this.users
+                  .map(function (e) {
+                    return e.uid;
+                  })
+                  .indexOf(this.client.uid!);
                 if (userIndex === -1) {
                   this.users.push({
                     name: this.authService.userInfo.userInfo.name!,
                     uid: this.client.uid as number,
+                    enabled: true,
                   });
                   this.roomService.usersCountChanged.next(this.users.length);
-                }
+                } else this.users[userIndex].enabled = true;
                 const data = query(
                   collection(this.db, 'rooms'),
                   where('channel', '==', this.route.snapshot.params['id'])
@@ -601,6 +694,7 @@ export class RoomComponent implements OnInit, OnDestroy {
                     addDoc(collection(this.db, doc.ref.path, 'users'), {
                       uuid: this.client.uid,
                       name: this.authService.userInfo.userInfo.name,
+                      enabled: true,
                     });
                   });
                   setTimeout(() => {
@@ -620,13 +714,12 @@ export class RoomComponent implements OnInit, OnDestroy {
                 });
               });
           } else if (!options.screen && this.screenTrack) {
-            this.users.splice(
-              this.users.indexOf({
-                name: this.authService.userInfo.userInfo.name!,
-                uid: this.client.uid as number,
-              }),
-              1
-            );
+            const userIndex = this.users
+              .map(function (e) {
+                return e.uid;
+              })
+              .indexOf(this.client.uid!);
+            this.users[userIndex].enabled = false;
             this.roomService.usersCountChanged.next(this.users.length);
             this.screenTrack.close();
             this.client.unpublish([this.screenTrack]);
@@ -658,17 +751,13 @@ export class RoomComponent implements OnInit, OnDestroy {
               .then((track) => {
                 this.screenTrack = track;
                 this.client.publish([this.screenTrack]);
-                const userIndex = this.users.indexOf({
-                  name: this.authService.userInfo.userInfo.name!,
-                  uid: this.client.uid as number,
-                });
-                if (userIndex === -1) {
-                  this.users.push({
-                    name: this.authService.userInfo.userInfo.name!,
-                    uid: this.client.uid as number,
-                  });
-                  this.roomService.usersCountChanged.next(this.users.length);
-                }
+                const userIndex = this.users
+                  .map(function (e) {
+                    return e.uid;
+                  })
+                  .indexOf(this.client.uid!);
+                this.roomService.usersCountChanged.next(this.users.length);
+                this.users[userIndex].enabled = true;
                 const data = query(
                   collection(this.db, 'rooms'),
                   where('channel', '==', this.route.snapshot.params['id'])
@@ -696,6 +785,36 @@ export class RoomComponent implements OnInit, OnDestroy {
                   screen: false,
                 });
               });
+          }
+        } else if (options.changeType === 'switch') {
+          if (this.streamOption.video) {
+            if (this.currentCamera >= this.cameraIds?.length - 1)
+              this.currentCamera = 0;
+            else this.currentCamera++;
+            this.videoTrack!.close();
+            this.client.unpublish([this.videoTrack!]).then(() => {
+              this.videoTrack = undefined;
+            });
+            AgoraRTC.createCameraVideoTrack({
+              optimizationMode: 'detail',
+              encoderConfig: '1080p',
+              cameraId: this.cameraIds[this.currentCamera].deviceId,
+            }).then((track) => {
+              this.videoTrack = track;
+              this.client.publish([this.videoTrack]);
+              const userIndex = this.users
+                .map(function (e) {
+                  return e.uid;
+                })
+                .indexOf(this.client.uid!);
+              setTimeout(() => {
+                this.videoTrack!.play(
+                  `stream-${
+                    userIndex === -1 ? this.users.length - 1 : userIndex
+                  }`
+                );
+              });
+            });
           }
         }
       })
@@ -747,50 +866,63 @@ export class RoomComponent implements OnInit, OnDestroy {
     this.message = undefined;
   }
 
+  canDeactivate() {
+    if (this.userAlreadyJoined || !this.channelExists) return true;
+    else return confirm('Are you sure you want to leave?');
+  }
+
   ngOnDestroy() {
-    this.subs.forEach((sub) => {
-      sub.unsubscribe();
-    });
-    this.client.unpublish();
-    this.audioTrack?.close();
-    this.screenTrack?.close();
-    this.videoTrack?.close();
-    const data = query(
-      collection(this.db, 'rooms'),
-      where('channel', '==', this.route.snapshot.params['id'])
-    );
-    getDocs(data).then((docs) => {
-      docs.forEach((doc_) => {
-        const user = query(
-          collection(this.db, doc_.ref.path, 'users'),
-          where('uuid', '==', this.client.uid)
-        );
-        getDocs(user).then((docs) => {
-          docs.forEach((doc__) => {
-            deleteDoc(doc__.ref);
-          });
-        });
+    try {
+      this.subs.forEach((sub) => {
+        sub.unsubscribe();
       });
-    });
-    getDocs(data).then((docs) => {
-      docs.forEach((doc_) => {
-        const user = query(
-          collection(this.db, doc_.ref.path, 'usersList'),
-          where('uuid', '==', this.client.uid)
-        );
-        getDocs(user).then((docs) => {
-          docs.forEach((doc__) => {
-            deleteDoc(doc__.ref);
-          });
-        });
-      });
-    });
-    if (this.usersList.length <= 1) {
+      this.client.unpublish();
+      this.audioTrack?.close();
+      this.screenTrack?.close();
+      this.videoTrack?.close();
+    } catch {}
+    try {
+      const data = query(
+        collection(this.db, 'rooms'),
+        where('channel', '==', this.channelName)
+      );
       getDocs(data).then((docs) => {
-        docs.forEach((doc) => {
-          deleteDoc(doc.ref);
+        docs.forEach((doc_) => {
+          const user = query(
+            collection(this.db, doc_.ref.path, 'users'),
+            where('uuid', '==', this.client.uid)
+          );
+          getDocs(user).then((docs) => {
+            docs.forEach((doc__) => {
+              deleteDoc(doc__.ref);
+            });
+          });
         });
       });
-    }
+      getDocs(data).then((docs) => {
+        docs.forEach((doc_) => {
+          const user = query(
+            collection(this.db, doc_.ref.path, 'usersList'),
+            where('uuid', '==', this.client.uid)
+          );
+          getDocs(user).then((docs) => {
+            docs.forEach((doc__) => {
+              deleteDoc(doc__.ref);
+            });
+          });
+        });
+      });
+      if (this.usersList.length <= 1) {
+        getDocs(data)
+          .then((docs) => {
+            docs.forEach((doc) => {
+              deleteDoc(doc.ref);
+            });
+          })
+          .then(() => {
+            this.client.leave();
+          });
+      }
+    } catch {}
   }
 }

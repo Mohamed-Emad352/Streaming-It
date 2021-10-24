@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { RoomLeavingGuard } from './guards/room-leaving.guard';
 import { RoomAuthenticationGuard } from './guards/roomAuthentication-guard.guard';
 import { AuthComponent } from './home/auth/auth.component';
 import { LoginComponent } from './home/Auth/login/login.component';
@@ -27,6 +28,7 @@ const routes: Routes = [
     path: 'room/:id',
     component: RoomComponent,
     canActivate: [RoomAuthenticationGuard],
+    canDeactivate: [RoomLeavingGuard],
   },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

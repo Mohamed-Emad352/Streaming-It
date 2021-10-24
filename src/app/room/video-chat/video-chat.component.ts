@@ -35,7 +35,7 @@ import { RoomService } from 'src/app/services/room.service';
   styleUrls: ['./video-chat.component.scss'],
 })
 export class VideoChatComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input() users?: { [s: string]: string | number }[];
+  @Input() users?: { [s: string]: string | number | boolean }[];
   @Input() speakers?: string[];
   speakerIcon = faVolumeUp;
   audioIcon = faMicrophone;
@@ -89,16 +89,19 @@ export class VideoChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   optimizeUI() {
     setTimeout(() => {
-      document.querySelectorAll('.user').forEach((u) => {
-        if (this.users?.length === 1) {
+      const activeUsers = this.users?.filter((u) => (u.enabled ? true : false));
+      if (activeUsers && activeUsers?.length === 1) {
+        document.querySelectorAll('.user').forEach((u) => {
           this.renderer.setStyle(u, 'grid-column', '1 / span 12');
           this.renderer.setStyle(u, 'grid-row', '1 / 3');
-        } else {
+        });
+      } else {
+        document.querySelectorAll('.user').forEach((u) => {
           this.renderer.removeStyle(u, 'grid-column');
           this.renderer.removeStyle(u, 'grid-row');
           this.renderer.setStyle(u, 'grid-column', 'span 6');
-        }
-      });
+        });
+      }
     });
   }
 
@@ -137,12 +140,18 @@ export class VideoChatComponent implements OnInit, AfterViewInit, OnDestroy {
       audio: this.audio,
       video: this.video,
       screen: this.screen,
-      changeType: 'screen',
+      changeType: 'switch',
     });
   }
 
   showMenu(menuType: string) {
     this.showMenuEvent.emit(menuType);
+  }
+
+  checkEnabled(i: number) {
+    if (this.users && this.users[i] && this.users[i].enabled)
+      return this.users![i];
+    else return { name: '', enabled: false };
   }
 
   onCopyRoomLink(div: HTMLSpanElement) {
@@ -154,7 +163,7 @@ export class VideoChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onFullscreen(div: HTMLDivElement) {
-    div.children[1].requestFullscreen();
+    div.children[0].children[1].requestFullscreen();
     document.exitFullscreen();
   }
 

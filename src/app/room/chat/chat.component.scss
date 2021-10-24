@@ -72,6 +72,15 @@ form {
     &:hover {
       background-color: $darkcyan-1;
     }
+
+    &:disabled {
+      background-color: #bdbdbd !important;
+      cursor: not-allowed;
+
+      &:hover {
+        background-color: #bdbdbd !important;
+      }
+    }
   }
 }
 

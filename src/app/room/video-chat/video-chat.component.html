@@ -9,10 +9,121 @@
     class="user"
     #user_
     (click)="onFullscreen(user_)"
-    [id]="'stream-' + i"
-    *ngFor="let user of users; let i = index"
+    [ngStyle]="{ display: !checkEnabled(0).enabled ? 'none' : 'block' }"
   >
-    <p>{{ user.name }}</p>
+    <div
+      *ngIf="checkEnabled(0).enabled"
+      class="vid-container"
+      style="width: 100%; height: 100%"
+      [id]="'stream-0'"
+    >
+      <p>{{ checkEnabled(0).name }}</p>
+    </div>
+  </div>
+  <div
+    class="user"
+    #user_1
+    (click)="onFullscreen(user_1)"
+    [ngStyle]="{ display: !checkEnabled(1).enabled ? 'none' : 'block' }"
+  >
+    <div
+      *ngIf="checkEnabled(1).enabled"
+      class="vid-container"
+      style="width: 100%; height: 100%"
+      [id]="'stream-1'"
+    >
+      <p>{{ checkEnabled(1).name }}</p>
+    </div>
+  </div>
+  <div
+    class="user"
+    #user_2
+    (click)="onFullscreen(user_2)"
+    [ngStyle]="{ display: !checkEnabled(2).enabled ? 'none' : 'block' }"
+  >
+    <div
+      *ngIf="checkEnabled(2).enabled"
+      class="vid-container"
+      style="width: 100%; height: 100%"
+      [id]="'stream-2'"
+    >
+      <p>{{ checkEnabled(2).name }}</p>
+    </div>
+  </div>
+  <div
+    class="user"
+    #user_3
+    (click)="onFullscreen(user_3)"
+    [ngStyle]="{ display: !checkEnabled(3).enabled ? 'none' : 'block' }"
+  >
+    <div
+      *ngIf="checkEnabled(3).enabled"
+      class="vid-container"
+      style="width: 100%; height: 100%"
+      [id]="'stream-3'"
+    >
+      <p>{{ checkEnabled(3).name }}</p>
+    </div>
+  </div>
+  <div
+    class="user"
+    #user_4
+    (click)="onFullscreen(user_4)"
+    [ngStyle]="{ display: !checkEnabled(4).enabled ? 'none' : 'block' }"
+  >
+    <div
+      *ngIf="checkEnabled(4).enabled"
+      class="vid-container"
+      style="width: 100%; height: 100%"
+      [id]="'stream-4'"
+    >
+      <p>{{ checkEnabled(4).name }}</p>
+    </div>
+  </div>
+  <div
+    class="user"
+    #user_5
+    (click)="onFullscreen(user_5)"
+    [ngStyle]="{ display: !checkEnabled(5).enabled ? 'none' : 'block' }"
+  >
+    <div
+      *ngIf="checkEnabled(5).enabled"
+      class="vid-container"
+      style="width: 100%; height: 100%"
+      [id]="'stream-5'"
+    >
+      <p>{{ checkEnabled(5).name }}</p>
+    </div>
+  </div>
+  <div
+    class="user"
+    #user_6
+    (click)="onFullscreen(user_6)"
+    [ngStyle]="{ display: !checkEnabled(6).enabled ? 'none' : 'block' }"
+  >
+    <div
+      *ngIf="checkEnabled(6).enabled"
+      class="vid-container"
+      style="width: 100%; height: 100%"
+      [id]="'stream-6'"
+    >
+      <p>{{ checkEnabled(6).name }}</p>
+    </div>
+  </div>
+  <div
+    class="user"
+    #user_7
+    (click)="onFullscreen(user_7)"
+    [ngStyle]="{ display: !checkEnabled(7).enabled ? 'none' : 'block' }"
+  >
+    <div
+      *ngIf="checkEnabled(7).enabled"
+      class="vid-container"
+      style="width: 100%; height: 100%"
+      [id]="'stream-7'"
+    >
+      <p>{{ checkEnabled(7).name }}</p>
+    </div>
   </div>
   <div class="speakers">
     <div class="speaker" *ngFor="let speaker of speakers">
