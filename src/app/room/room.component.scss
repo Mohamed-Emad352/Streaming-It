@@ -22,6 +22,57 @@
     animation: dark-overlay 300ms ease-in-out;
   }
 
+  .message {
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    top: 35%;
+    min-width: 200px;
+    min-height: 100px;
+    width: 500px;
+    margin: auto;
+    padding: 20px 50px 20px 50px;
+    background-color: white;
+    z-index: 55;
+    border-radius: 10px;
+    color: red;
+    animation: message 400ms ease-in-out;
+    text-align: center;
+    font-size: 1.5rem;
+
+    .controls {
+      display: flex;
+      margin-top: 5px;
+      width: 100%;
+      justify-content: space-between;
+
+      .control {
+        padding: 5px 35px 5px 35px;
+        color: white;
+        cursor: pointer;
+        border-radius: 8px;
+      }
+    }
+
+    @include tablet {
+      width: 95%;
+    }
+
+    p {
+      margin: 0 !important;
+      align-self: center;
+    }
+
+    .close-icon {
+      position: absolute;
+      top: 5px;
+      right: 20px;
+      color: black;
+      cursor: pointer;
+      font-size: 1.5rem;
+    }
+  }
+
   .users-list {
     grid-column: 1 / span 3;
     background-color: whitesmoke;
@@ -116,6 +167,16 @@
   from {
     transform: scale(0);
   }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes message {
+  from {
+    transform: scale(0);
+  }
+
   to {
     transform: scale(1);
   }

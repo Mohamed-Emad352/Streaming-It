@@ -16,66 +16,80 @@
     display: flex;
     justify-content: space-between;
 
-    .menu {
+    // .menu {
+    //   height: 30px;
+    //   width: 30px;
+    //   padding: 6px;
+    //   display: flex;
+    //   flex-direction: column;
+    //   justify-content: space-around;
+    //   border-radius: 50%;
+    //   margin-left: 10px;
+    //   cursor: pointer;
+    //   align-self: center;
+    //   transition: background-color 0.3s ease-in-out;
+
+    //   &:hover {
+    //     background-color: #d1d1d1;
+    //   }
+
+    //   .menu-dot {
+    //     width: 4px;
+    //     height: 4px;
+    //     background-color: black;
+    //     border-radius: 50%;
+    //     align-self: center;
+    //   }
+    // }
+
+    .kick {
       height: 30px;
       width: 30px;
       padding: 6px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
       border-radius: 50%;
       margin-left: 10px;
       cursor: pointer;
-      align-self: center;
-      transition: background-color 0.3s ease-in-out;
+      background-color: red;
+      color: white;
+      display: flex;
+      justify-content: center;
 
-      &:hover {
-        background-color: #d1d1d1;
-      }
-
-      .menu-dot {
-        width: 4px;
-        height: 4px;
-        background-color: black;
-        border-radius: 50%;
+      &.icon-wrapper {
         align-self: center;
       }
     }
 
     .soundIcon {
       align-self: center;
-    }
 
-    .menu-options {
-      position: absolute;
-      z-index: 10;
-      right: calc(75% - 100px);
-      background-color: lightcoral;
-      cursor: pointer;
-      padding: 10px 20px 10px 20px;
-      margin-top: -5px;
-      border-radius: 6px;
-      transition: 0.3s ease-in-out background-color;
-      animation: menuOptions 0.3s ease-in-out;
-
-      @include tablet {
-        right: 60px;
-      }
-
-      &:hover {
-        background-color: #f33232;
+      &.mute {
+        color: red;
       }
     }
-  }
-}
 
-@keyframes menuOptions {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+    // .menu-options {
+    //   display: none;
+    //   position: absolute;
+    //   z-index: 10;
+    //   right: calc(75% - 100px);
+    //   background-color: lightcoral;
+    //   cursor: pointer;
+    //   padding: 10px 20px 10px 20px;
+    //   margin-top: -5px;
+    //   border-radius: 6px;
+    //   transition: 0.3s ease-in-out background-color;
+
+    //   &.show {
+    //     display: block;
+    //   }
+
+    //   @include tablet {
+    //     right: 60px;
+    //   }
+
+    //   &:hover {
+    //     background-color: #f33232;
+    //   }
+    // }
   }
 }

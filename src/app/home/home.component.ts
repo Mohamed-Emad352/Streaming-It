@@ -94,7 +94,8 @@ export class HomeComponent implements OnInit, AfterContentChecked, OnDestroy {
   }
 
   onOpenJoinForm() {
-    this.message = 'join';
+    if (getAuth().currentUser) this.message = 'join';
+    else this.router.navigate(['/auth', 'login']);
   }
 
   onJoinRoom(frm: NgForm) {

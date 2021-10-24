@@ -24,6 +24,7 @@ import {
   faUsers,
   faCommentAlt,
   faCopy,
+  faSyncAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { Subscription } from 'rxjs';
 import { RoomService } from 'src/app/services/room.service';
@@ -34,12 +35,13 @@ import { RoomService } from 'src/app/services/room.service';
   styleUrls: ['./video-chat.component.scss'],
 })
 export class VideoChatComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input() users?: any[];
+  @Input() users?: { [s: string]: string | number }[];
   @Input() speakers?: string[];
   speakerIcon = faVolumeUp;
   audioIcon = faMicrophone;
   videoIcon = faVideo;
   screenIcon = faDesktop;
+  swapIcon = faSyncAlt;
   leaveIcon = faPhone;
   audioMutedIcon = faMicrophoneSlash;
   videoDisabledIcon = faVideoSlash;
@@ -51,6 +53,7 @@ export class VideoChatComponent implements OnInit, AfterViewInit, OnDestroy {
   screen = false;
   @Output() showMenuEvent = new EventEmitter<string>();
   subs: Subscription[] = [];
+  @Input() camerasId!: MediaDeviceInfo[];
 
   constructor(
     private renderer: Renderer2,
@@ -129,6 +132,15 @@ export class VideoChatComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  swapVideo() {
+    this.roomService.streamOptions.next({
+      audio: this.audio,
+      video: this.video,
+      screen: this.screen,
+      changeType: 'screen',
+    });
+  }
+
   showMenu(menuType: string) {
     this.showMenuEvent.emit(menuType);
   }
@@ -141,8 +153,9 @@ export class VideoChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 5000);
   }
 
-  createIndex() {
-    return this.users?.length! - 1;
+  onFullscreen(div: HTMLDivElement) {
+    div.children[1].requestFullscreen();
+    document.exitFullscreen();
   }
 
   ngOnDestroy() {

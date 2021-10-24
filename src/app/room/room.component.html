@@ -1,15 +1,19 @@
 <div *ngIf="!loading" class="page">
   <div
-    *ngIf="chatMenu || usersListMenu"
+    *ngIf="chatMenu || usersListMenu || message"
     (click)="closeMenu()"
     class="dark-overlay"
   ></div>
   <div [ngClass]="{ show: usersListMenu }" class="users-list">
-    <app-users-list [users]="usersList"></app-users-list>
+    <app-users-list
+      (messageEvent)="onHandleMessage($event)"
+      [users]="usersList"
+    ></app-users-list>
   </div>
   <div class="room">
     <app-video-chat
       [users]="users"
+      [camerasId]="cameraIds"
       [speakers]="speakers"
       (showMenuEvent)="onShowMenu($event)"
     ></app-video-chat>

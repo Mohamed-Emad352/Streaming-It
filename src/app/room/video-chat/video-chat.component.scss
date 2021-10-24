@@ -5,6 +5,7 @@
   height: 100vh;
   overflow: auto;
   padding: 40px 10px 90px 10px;
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 10px;
@@ -16,15 +17,25 @@
   .copylink {
     position: absolute;
     top: 0;
-    padding: 5px 40px 5px 40px;
     color: white;
-    left: 1;
-    right: 1;
-    margin: auto;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-    cursor: pointer;
-    background-color: $blue-1;
+    width: 100%;
+    text-align: center;
+
+    .copywrapper {
+      width: 240px;
+      margin: auto;
+      transition: 300ms ease-in-out background-color;
+      padding: 5px 40px 5px 40px;
+      text-align: center;
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      cursor: pointer;
+      background-color: $blue-1;
+
+      &:hover {
+        background-color: $blue-3;
+      }
+    }
   }
 
   .user {
@@ -33,6 +44,29 @@
     grid-column: span 6;
     animation: user 0.6s ease-in-out;
     overflow: hidden;
+    cursor: pointer;
+    position: relative;
+
+    video {
+      z-index: 1;
+    }
+
+    p {
+      position: absolute;
+      z-index: 2;
+      top: 10px;
+      left: 10px;
+      font-size: 1.5rem;
+      color: white;
+      opacity: 0;
+      transition: 400ms ease-in-out opacity;
+    }
+
+    &:hover {
+      p {
+        opacity: 1;
+      }
+    }
   }
 
   @include mobile {
@@ -76,18 +110,23 @@
 .controls {
   position: fixed;
   bottom: 20px;
-  left: 1;
-  right: 1;
-  margin: auto;
-  display: flex;
-  justify-content: space-between;
-  width: 250px;
+  left: 0;
+  right: 0;
+  text-align: center;
+
+  .controls-wrapper {
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    width: 300px;
+  }
 
   .control {
     @include control;
     background-color: black;
     color: white;
     width: 55px;
+    animation: user ease-in-out 300ms;
 
     &.leave {
       background-color: red;
@@ -108,6 +147,10 @@
 
     &.enabled:hover {
       background-color: darken($color: white, $amount: 15);
+    }
+
+    &.switch {
+      background-color: $blue-1 !important;
     }
   }
 }

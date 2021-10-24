@@ -1,12 +1,17 @@
 import {
   Component,
   ElementRef,
+  EventEmitter,
   Input,
   OnInit,
-  Renderer2,
-  ViewChild,
+  Output,
 } from '@angular/core';
-import { faVolumeUp } from '@fortawesome/free-solid-svg-icons';
+import {
+  faTimes,
+  faVolumeMute,
+  faVolumeUp,
+} from '@fortawesome/free-solid-svg-icons';
+import { RoomUserInfo } from 'src/app/models/roomUserInfo.interface';
 
 @Component({
   selector: 'app-users-list',
@@ -14,36 +19,14 @@ import { faVolumeUp } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./users-list.component.scss'],
 })
 export class UsersListComponent implements OnInit {
-  @Input() users: string[] = [];
+  @Input() users: RoomUserInfo[] = [];
   soundIcon = faVolumeUp;
-  currentUser: any;
-  currentMenu: any;
-  constructor(private renderer: Renderer2) {}
+  soundIconMute = faVolumeMute;
+  kickIcon = faTimes;
+  @Output() messageEvent = new EventEmitter<string>();
+  constructor() {}
 
-  ngOnInit(): void {
-    document.querySelector('.page')?.addEventListener('click', (e) => {
-      try {
-        if (
-          this.currentMenu &&
-          e.target !== this.currentMenu &&
-          !this.currentMenu.parentElement.contains(e.target as Node)
-        ) {
-          this.currentMenu.remove();
-        }
-      } catch {}
-    });
-  }
+  ngOnInit(): void {}
 
-  showMenu(user: HTMLDivElement) {
-    if (this.currentMenu) {
-      this.currentMenu.remove();
-      this.currentMenu = null;
-    }
-    this.currentUser = user.parentElement;
-    const menu = this.renderer.createElement('div');
-    this.renderer.addClass(menu, 'menu-options');
-    menu.innerHTML = `Kick out`;
-    this.currentMenu = menu;
-    this.renderer.appendChild(user, menu);
-  }
+  closeMessage() {}
 }

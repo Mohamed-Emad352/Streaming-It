@@ -1,15 +1,13 @@
-<div [title]="user" class="list-item" *ngFor="let user of users">
+<div [title]="user.name" class="list-item" *ngFor="let user of users">
   <p style="margin-bottom: 0">
-    {{ user | slice: 0:25 }}<span *ngIf="user.length > 25">...</span>
+    {{ user.name | slice: 0:25 }}<span *ngIf="user.name.length > 25">...</span>
   </p>
-  <div class="wrapper" #user_>
-    <div class="soundIcon">
+  <div class="wrapper">
+    <div class="soundIcon" *ngIf="user.speaking">
       <fa-icon [icon]="soundIcon"></fa-icon>
     </div>
-    <div class="menu" (click)="showMenu(user_)">
-      <div class="menu-dot"></div>
-      <div class="menu-dot"></div>
-      <div class="menu-dot"></div>
+    <div class="soundIcon mute" *ngIf="!user.speaking">
+      <fa-icon [icon]="soundIconMute"></fa-icon>
     </div>
   </div>
 </div>
