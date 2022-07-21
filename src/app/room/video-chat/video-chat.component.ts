@@ -167,6 +167,11 @@ export class VideoChatComponent implements OnInit, AfterViewInit, OnDestroy {
     document.exitFullscreen();
   }
 
+  onCloseNote(div: HTMLDivElement) {
+    event?.stopPropagation();
+    this.renderer.setStyle(div, 'display', 'none');
+  }
+
   ngOnDestroy() {
     this.subs.forEach((sub) => {
       sub.unsubscribe();

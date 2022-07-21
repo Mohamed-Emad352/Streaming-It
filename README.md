@@ -1,6 +1,38 @@
 # StreamingIt
 
+## A web-based application which allows group online conferences
+
+## Structure
+
+The project is seperated into 2 folders, src which holds all of the front-end code. And server which
+holds the back-end code responsible for the token apis.
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.1.1.
+This project was created with the help of Agora.
+
+## Features
+
+The application fully provides the following features:
+
+- Voice Chat
+
+- Video Chat (Maximum 8 users are allowed at one time)
+
+- Text Chat
+
+- Screen Sharing (Available only for pcs)
+
+- Switching Cams (This feature is only available if there are multiple cameras connected to the device)
+
+- Mute Video / Audio
+
+## Live Demo
+
+[See live demo here](https://streaming-it.netlify.app/)
+
+## Get Started
+
+Clone the repository and run 'npm install'
 
 ## Development server
 

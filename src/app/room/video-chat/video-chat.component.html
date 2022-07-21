@@ -148,6 +148,14 @@
         [title]="audio ? 'Mute' : 'Unmute'"
         class="audio control"
       >
+        <div class="note" #note>
+          If you are not talking much, please consider muting the microphone as
+          it occupies extra application resources for no reason <br />
+          Thank you in advance!
+          <div class="close-note" (click)="onCloseNote(note)">
+            <span style="cursor: pointer">Got it!</span>
+          </div>
+        </div>
         <fa-icon *ngIf="audio" [icon]="audioIcon"></fa-icon>
         <fa-icon *ngIf="!audio" [icon]="audioMutedIcon"></fa-icon>
       </div>

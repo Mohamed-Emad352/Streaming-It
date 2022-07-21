@@ -115,6 +115,7 @@
   text-align: center;
 
   .controls-wrapper {
+    position: relative;
     margin: auto;
     display: flex;
     justify-content: space-between;
@@ -151,6 +152,35 @@
 
     &.switch {
       background-color: $blue-1 !important;
+    }
+
+    &.audio {
+      .note {
+        position: absolute;
+        top: -130px;
+        background-color: black;
+        color: white;
+        cursor: auto;
+        width: 300px;
+        border-radius: 15px;
+        font-size: 0.8rem !important;
+        left: 0px;
+        padding: 10px;
+        right: 0;
+        margin: auto;
+
+        .close-note {
+          color: $darkcyan-2;
+          text-decoration: underline;
+          text-align: right;
+        }
+      }
+    }
+
+    &.screen {
+      @include tablet {
+        display: none;
+      }
     }
   }
 }

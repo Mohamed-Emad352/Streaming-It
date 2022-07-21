@@ -872,6 +872,7 @@ export class RoomComponent
   }
 
   ngOnDestroy() {
+    const uid = this.client.uid;
     try {
       this.subs.forEach((sub) => {
         sub.unsubscribe();
@@ -880,6 +881,7 @@ export class RoomComponent
       this.audioTrack?.close();
       this.screenTrack?.close();
       this.videoTrack?.close();
+      this.client.leave();
     } catch {}
     try {
       const data = query(
@@ -890,7 +892,7 @@ export class RoomComponent
         docs.forEach((doc_) => {
           const user = query(
             collection(this.db, doc_.ref.path, 'users'),
-            where('uuid', '==', this.client.uid)
+            where('uuid', '==', uid)
           );
           getDocs(user).then((docs) => {
             docs.forEach((doc__) => {
@@ -903,7 +905,7 @@ export class RoomComponent
         docs.forEach((doc_) => {
           const user = query(
             collection(this.db, doc_.ref.path, 'usersList'),
-            where('uuid', '==', this.client.uid)
+            where('uuid', '==', uid)
           );
           getDocs(user).then((docs) => {
             docs.forEach((doc__) => {
